@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Image, AppRegistry, Text, View, StyleSheet, TouchableHighlight, Dimensions } from 'react-native';
-import Constants from 'expo-constants';
+import { TextInput, Image, Text, View, StyleSheet, TouchableHighlight, Dimensions } from 'react-native';
 
 let deviceHeight = Dimensions.get('window').height;
 let deviceWidth = Dimensions.get('window').width;
@@ -9,11 +8,30 @@ export default class App extends Component {
     constructor(props){
         super(props)
         this.state = {
+            saved: {
+                "First Name": 'Natalie',
+                "Last Name": 'Kim',
+                "Phone Number": '123-456-7890',
+                "Address": '420 CandyLand Street Omegalul City Madagascar 19320',
+                "Payment Method": 'VISA',
+                "Credit Card Number": '9999-9999-9999-9999',
+                "CSC": '101'
+            },
+            settingsBuffer: {
+                "First Name": 'Natalie',
+                "Last Name": 'Kim',
+                "Phone Number": '123-456-7890',
+                "Address": '420 CandyLand Street Omegalul City Madagascar 19320',
+                "Payment Method": 'VISA',
+                "Credit Card Number": '9999-9999-9999-9999',
+                "CSC": '101'
+            },
             screen: "Home",
             shoppingcart: [],
             selected: null,
             selectFoods: false,
             checkout: false,
+            savedMessage: false,
         }
     }
     addItem(kek){
@@ -126,12 +144,26 @@ export default class App extends Component {
         }
     }
     
+    renderHome(){
+        return(
+            <View>
+            <Text style={styles.header}>Recommended</Text>
+            {Restaraunts.map(bruv => {
+                return(
+                    <TouchableHighlight onPress={()=>{this.setState({selected: bruv})}}>
+                        <Text style={styles.restaraunt}>{bruv.name}</Text>
+                    </TouchableHighlight>
+                    );   
+                })}
+            </View>
+        );
+    }
     renderScreen(){
         if((this.state.selected ===null)){
             if(this.state.screen === "Home"){
                 return(
                     <View>
-                        bruh
+                        {this.renderHome()}
                     </View>
                 );
             }
@@ -152,35 +184,87 @@ export default class App extends Component {
             else{
                 return(
                     <View>
-                        bruh3
+                        {this.renderAccount()}
                     </View>
                 );
             }
         }
     }
     
+    changeValue = (e, type) => {
+        const {settingsBuffer} = this.state
+        settingsBuffer[type] = e
+        this.setState({settingsBuffer: settingsBuffer})
+    }
+    
+    renderSavedMessage(){
+        if(this.state.savedMessage){
+            return(
+                <Text style={styles.saveMessage}>Saved Successfully!</Text>    
+            );
+        }
+    }
+    
+    renderAccount(){
+        const {settingsBuffer} = this.state
+        let firstName = settingsBuffer["First Name"]
+        let lastName = settingsBuffer["Last Name"]
+        let phone = settingsBuffer["Phone Number"]
+        let address = settingsBuffer["Address"]
+        let payMethod = settingsBuffer["Payment Method"]
+        let creditCard = settingsBuffer["Credit Card Number"]
+        let csc = settingsBuffer["CSC"]
+        
+        return(
+            <View>
+                <Text style={styles.accountText}>First Name:  </Text><TextInput style={styles.AccountInput} onChangeText={(e) => this.changeValue(e, "First Name")} value={firstName}/><Text>{"\n"}</Text>
+                <Text style={styles.accountText}>Last Name:  </Text><TextInput style={styles.AccountInput} onChangeText={(e) => this.changeValue(e, "Last Name")} value={lastName}/><Text>{"\n"}</Text>
+                <Text style={styles.accountText}>Phone Number:  </Text><TextInput style={styles.AccountInput} onChangeText={(e) => this.changeValue(e, "Phone Number")} value={phone}/><Text>{"\n"}</Text>
+                <Text style={styles.accountText}>Address:  </Text><TextInput style={styles.AccountInput} onChangeText={(e) => this.changeValue(e, "Address")} value={address}/><Text>{"\n"}</Text>
+                <Text style={styles.accountText}>Payment Method  </Text><TextInput style={styles.AccountInput} onChangeText={(e) => this.changeValue(e, "Payment Method")} value={payMethod}/><Text>{"\n"}</Text>
+                <Text style={styles.accountText}>Credit Card Number:  </Text><TextInput style={styles.AccountInput} onChangeText={(e) => this.changeValue(e, "Credit Card Number")} value={creditCard}/><Text>{"\n"}</Text>
+                <Text style={styles.accountText}>CSC:  </Text><TextInput style={styles.AccountInput} onChangeText={(e) => this.changeValue(e, "CSC")} value={csc}/><Text>{"\n\n"}</Text>
+                <TouchableHighlight style={styles.saveButton} onPress={() => {
+                    const {settingsBuffer} = this.state; 
+                    let cops = {}
+                    for(const feature in settingsBuffer){cops[feature] = settingsBuffer[feature]}
+                    this.setState({saved: cops, savedMessage: true})}
+                }>
+                    <Text>Save</Text>
+                </TouchableHighlight>
+                {this.renderSavedMessage()}
+            </View>    
+        );
+    }
+    onSwitch(button){
+        const {saved} = this.state
+        let cops = {}
+        for(const feature in saved){cops[feature] = saved[feature]}
+        this.setState({screen: button, selected: null, selectFoods: false, checkout: false, savedMessage: false, settingsBuffer: cops})
+    }
+    
     render() {
         return (
             <View>
                 <View style={styles.navbarContainer}>
-                        <TouchableHighlight onPress={()=>{this.setState({screen: "Home", selected: null, selectFoods: false, checkout: false})}} style={styles.navButton}>
+                        <TouchableHighlight onPress={()=>this.onSwitch("Home")} style={styles.navButton}>
                             <Text style={styles.navButtonText}>
                                 Home
                             </Text>
                         </TouchableHighlight>
-                        <TouchableHighlight onPress={()=>{this.setState({screen: "Discover", selected: null, selectFoods: false, checkout: false})}} style={styles.navButton}>
+                        <TouchableHighlight onPress={()=>this.onSwitch("Discover")} style={styles.navButton}>
                             <Text style={styles.navButtonText}>
                                 Discover
                             </Text>
                         </TouchableHighlight>
                         
-                        <TouchableHighlight onPress={()=>{this.setState({screen: "Delivery", selected: null, selectFoods: false, checkout: false})}} style={styles.navButton}>
+                        <TouchableHighlight onPress={()=>this.onSwitch("Delivery")} style={styles.navButton}>
                             <Text style={styles.navButtonText}>
                                 Delivery
                             </Text>
                         </TouchableHighlight>
                         
-                        <TouchableHighlight onPress={()=>{this.setState({screen: "Account", selected: null, selectFoods: false, checkout: false})}} style={styles.navButton}>
+                        <TouchableHighlight onPress={()=>this.onSwitch("Account")} style={styles.navButton}>
                             <Text style={styles.navButtonText}>
                                 Account
                             </Text>
@@ -202,6 +286,7 @@ var Types = {
     "Fast Food": [],
     "Pizza": [],
 }
+var Restaraunts = []
 
 class Restaraunt {
     constructor(name, type){
@@ -267,6 +352,15 @@ var pizzakitchen = new Restaraunt("California Pizza Kitchen", "Pizza")
 pizzakitchen.addFood(new Item("Pizza", 9, null))
 pizzakitchen.addFood(new Item("Drink", 3, null))
 
+//after initializing every restaraunt
+//takes every restaraunt in Types and appends it to Restaraunts
+for(const item in Types){
+    let bruh = Types[item]
+    for(let i=0; i< bruh.length; i++){
+        Restaraunts.push(bruh[i])
+    }
+}
+
 const styles = StyleSheet.create({
     container: {
         height: deviceHeight,
@@ -278,6 +372,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'lightblue',
+    },
+    header:{
+        fontSize: 40,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    restaraunt:{
+        fontSize: 25,
+        textAlign: 'center',
     },
     buyButton:{
         height: 20,
@@ -332,13 +435,24 @@ const styles = StyleSheet.create({
         fontSize: 25,
         textAlign: 'center',
     },
-    header:{
-        fontSize: 40,
+    accountText:{
         fontWeight: 'bold',
+        fontSize: 18,
+    },
+    accountInput:{
+        fontSize: 14
+    },
+    saveButton:{
+        fontSize: 25,
+        backgroundColor: '#5DADE2',
+        width: deviceHeight/4,
+        height: 20,
+        textAlign: 'center',
+        left: deviceWidth/2 - deviceHeight/8,
+    },
+    saveMessage:{
+        fontSize: 12,
         textAlign: 'center',
     },
-    restaraunt:{
-        fontSize: 25,
-        textAlign: 'center',
-    }
+    
 });
