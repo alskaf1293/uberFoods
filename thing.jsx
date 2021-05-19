@@ -11,9 +11,27 @@ export default class App extends Component {
         this.state = {
             screen: "Home",
             shoppingcart: [],
-            selected: null
+            selected: null,
+            selectFoods: false,
+            checkout: false,
         }
     }
+    addItem(kek){
+        const {shoppingcart} = this.state
+        shoppingcart.push(kek)
+        this.setState({shoppingcart: shoppingcart})
+    }
+    
+    renderPlusButton(kek){
+        if(this.state.selectFoods){
+            return(
+                <TouchableHighlight style={{backgroundColor: '#00FF00',}} onPress={()=> this.addItem(kek)}>
+                    <Text>+</Text>
+                </TouchableHighlight>
+            );
+        }
+    }
+    
     renderSelected(){
         if(!(this.state.selected===null)){
             const {selected} = this.state;
@@ -33,10 +51,14 @@ export default class App extends Component {
                         return(
                             <View>
                                 <Image source={url}/>
-                                <Text>{name}  ${price}</Text>
+                                <Text>{name}  ${price} {this.renderPlusButton(kek)}</Text>
                             </View>
                         );
                     })}
+                    <Text>{"\n\n\n"}</Text>
+                    <TouchableHighlight style={styles.buyButton} onPress={()=>{this.setState({selectFoods: true})}}>
+                        <Text>Buy</Text>
+                    </TouchableHighlight>
                 </View>
             );
         }
@@ -61,7 +83,47 @@ export default class App extends Component {
                     );
                 })
             );
-        
+    }
+    
+    renderCheckoutButton(){
+        return(
+            <View style={styles.checkoutButton}>
+                <TouchableHighlight onPress={()=>{this.setState({checkout: true})}}><Text>Checkout</Text></TouchableHighlight>
+            </View>
+        );
+    }
+    
+    renderShoppingCart(){
+        const {shoppingcart, checkout} = this.state
+        if(checkout){
+            return(
+                <Text style={styles.checkoutText}>Your Order Will Be On Your Way!</Text>
+            );
+        }
+        else if(shoppingcart.length === 0){
+            return( <Text>Nothing added to cart yet!</Text>);
+        }
+        else{
+            return(
+                <View>
+                    <Text style={styles.header}>Items in Cart</Text>
+                    <Text>{"\n\n\n"}</Text>
+                    {shoppingcart.map(item =>{
+                        const name = item.name
+                        const price = item.price
+                        const url = item.url
+                        return(
+                            <View>
+                                <Image source={url}/>
+                                <Text>{name}  ${price}</Text>
+                            </View>
+                        );
+                    })}
+                    <Text>{"\n\n\n"}</Text>
+                    {this.renderCheckoutButton()}
+                </View>
+            );
+        }
     }
     
     renderScreen(){
@@ -83,7 +145,7 @@ export default class App extends Component {
             else if(this.state.screen === "Delivery"){
                 return(
                     <View>
-                        bruh2
+                        {this.renderShoppingCart()}
                     </View>
                 );
             }
@@ -101,24 +163,24 @@ export default class App extends Component {
         return (
             <View>
                 <View style={styles.navbarContainer}>
-                        <TouchableHighlight onPress={()=>{this.setState({screen: "Home", selected: null})}} style={styles.navButton}>
+                        <TouchableHighlight onPress={()=>{this.setState({screen: "Home", selected: null, selectFoods: false, checkout: false})}} style={styles.navButton}>
                             <Text style={styles.navButtonText}>
                                 Home
                             </Text>
                         </TouchableHighlight>
-                        <TouchableHighlight onPress={()=>{this.setState({screen: "Discover", selected: null})}} style={styles.navButton}>
+                        <TouchableHighlight onPress={()=>{this.setState({screen: "Discover", selected: null, selectFoods: false, checkout: false})}} style={styles.navButton}>
                             <Text style={styles.navButtonText}>
                                 Discover
                             </Text>
                         </TouchableHighlight>
                         
-                        <TouchableHighlight onPress={()=>{this.setState({screen: "Delivery", selected: null})}} style={styles.navButton}>
+                        <TouchableHighlight onPress={()=>{this.setState({screen: "Delivery", selected: null, selectFoods: false, checkout: false})}} style={styles.navButton}>
                             <Text style={styles.navButtonText}>
                                 Delivery
                             </Text>
                         </TouchableHighlight>
                         
-                        <TouchableHighlight onPress={()=>{this.setState({screen: "Account", selected: null})}} style={styles.navButton}>
+                        <TouchableHighlight onPress={()=>{this.setState({screen: "Account", selected: null, selectFoods: false, checkout: false})}} style={styles.navButton}>
                             <Text style={styles.navButtonText}>
                                 Account
                             </Text>
@@ -216,6 +278,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'lightblue',
+    },
+    buyButton:{
+        height: 20,
+        width: deviceHeight/3,
+        backgroundColor: '#00FF00',
+        textAlign: 'center',
+        left: deviceWidth/2 - deviceHeight/6
+    },
+    checkoutButton:{
+        height: 20,
+        width: deviceHeight/3,
+        backgroundColor: '#00FF00',
+        textAlign: 'center',
+        left: deviceWidth/2 - deviceHeight/6
+    },
+    checkoutText:{
+        height: 10,
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
     navbarContainer: {
         height: deviceHeight/6,
